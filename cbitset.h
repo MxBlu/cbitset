@@ -27,7 +27,6 @@ typedef struct _cBitSet{
 
 cBitSet *cbitset_create(int *data, unsigned int sz);
 void cbitset_destroy(cBitSet *t);
-void cbitset_print(cBitSet *cset);
 
 // Chunk Functions
 BitChunk *cbitset_chunk(cBitSet *cset, int offset);
@@ -39,5 +38,7 @@ void cbitset_set(cBitSet *cset, int x);
 void cbitset_unset(cBitSet *cset, int x);
 
 int cbitset_contains(cBitSet *cset, int x);
+int cbitset_cardinality(cBitSet *cset);
+void cbitset_print(cBitSet *cset);
 
 #endif // CBITSET_H

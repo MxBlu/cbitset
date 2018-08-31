@@ -6,14 +6,7 @@
 #include "cbitset.h"
 
 static int b_search(cBitSet *cset, int t_offset);
-
-void bprint(int x) {
-    int a;
-    for (a = 7; a >= 0; a--) {
-        printf("%d", !!((x << a) & 0x80));
-    }
-    printf("\n");
-}
+void bprint(int x);
 
 cBitSet *cbitset_create(int *data, unsigned int sz) {
     cBitSet *new = malloc(sizeof(cBitSet));
@@ -21,8 +14,14 @@ cBitSet *cbitset_create(int *data, unsigned int sz) {
     new->set = NULL;
     
     int i;
-    for (i = 0; i < sz; i++)
-        cbitset_set(new, data[i]);
+    BitChunk *c_chunk = NULL;
+    for (i = 0; i < sz; i++) {
+        int t_offset = CB_GETOFFSET(data[i]);
+        if (c_chunk == NULL || c_chunk->offset != t_offset)
+            c_chunk = cbitset_chunk(new, t_offset);
+        
+        CB_CHUNK_SET(c_chunk, CB_GETBIT(data[i]));
+    }
     
     return new;
 }
@@ -73,6 +72,12 @@ void cbitset_delchunk(cBitSet *cset, int offset) {
     
     if (index >= cset->sz || cset->set[index].offset != offset)
         return;
+    
+    if (cset->sz == 1) {
+        free(cset->set);
+        cset->sz = 0;
+        return;
+    }
     
     int i;
     for (i = index; i < cset->sz - 1; i++)
@@ -127,6 +132,24 @@ int cbitset_contains(cBitSet *cset, int x) {
     return CB_CHUNK_TEST(t_chunk, t_bit);
 }
 
+int cbitset_cardinality(cBitSet *cset) {
+    int cnt = 0;
+    
+    int i, j, k;
+    for (i = 0; i < cset->sz; i++) {
+        BitChunk *t_chunk = &(cset->set[i]);
+        for (j = 0; j < __N; j++) {
+            char t_word = t_chunk->map[j];
+            for (k = 0; k < 8; k++) {
+                if (t_word & (1 << k))
+                    cnt++;
+            }
+        }
+    }
+    
+    return cnt;
+}
+
 void cbitset_print(cBitSet *cset) {
     if (cset == NULL)
         return;
@@ -171,5 +194,12 @@ static int b_search( cBitSet *cset, int t_offset ) {
             l = m + 1;
     }
     return m + 1;
+}
 
+void bprint(int x) {
+    int a;
+    for (a = 7; a >= 0; a--) {
+        printf("%d", !!((x << a) & 0x80));
+    }
+    printf("\n");
 }

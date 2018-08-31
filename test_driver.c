@@ -111,6 +111,8 @@ int main (int argc, char *argv[]) {
     assert(cbitset_contains(t1, 63) == 1);
     assert(cbitset_contains(t1, 1000) == 1);
     
+    assert(cbitset_cardinality(t1) == 8);
+    
     cbitset_unset(t1, 0);
     cbitset_unset(t1, 1);
     cbitset_unset(t1, 1000);
@@ -129,6 +131,8 @@ int main (int argc, char *argv[]) {
     assert(cbitset_contains(t1, 63) == 0);
     assert(cbitset_contains(t1, 1000) == 0);
     
+    assert(cbitset_cardinality(t1) == 4);
+    
     cbitset_unset(t1, 32);
     cbitset_unset(t1, 40);
     
@@ -145,7 +149,30 @@ int main (int argc, char *argv[]) {
     assert(cbitset_contains(t1, 63) == 0);
     assert(cbitset_contains(t1, 1000) == 0);
     
+    assert(cbitset_cardinality(t1) == 2);
+    
     cbitset_destroy(t1);
+    
+    int t2_nums[] = { -1000, -240, -256, -64, -33, -1, 25, 1000 };
+    cBitSet *t2 = cbitset_create(t2_nums, 8);
+    cbitset_print(t2);
+    
+    assert(cbitset_contains(t1, 0) == 0);
+    assert(cbitset_contains(t2, -1000) == 1);
+    assert(cbitset_contains(t2, -240) == 1);
+    assert(cbitset_contains(t2, -256) == 1);
+    assert(cbitset_contains(t2, -64) == 1);
+    assert(cbitset_contains(t2, -33) == 1);
+    assert(cbitset_contains(t2, -1) == 1);
+    assert(cbitset_contains(t2, 25) == 1);
+    assert(cbitset_contains(t2, 1000) == 1);
+    assert(cbitset_contains(t2, -220) == 0);
+    assert(cbitset_contains(t2, -2500) == 0);
+    assert(cbitset_contains(t2, -32) == 0);
+    
+    assert(cbitset_cardinality(t1) == 8);
+    
+    cbitset_destroy(t2);
     
     return 0;
 }
