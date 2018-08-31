@@ -5,8 +5,14 @@
 
 #include "cbitset.h"
 
+// Chunk Functions
+BitChunk *cbitset_chunk(cBitSet *cset, int offset);
+BitChunk *cbitset_getchunk(cBitSet *cset, int offset);
+void cbitset_delchunk(cBitSet *cset, int offset);
+
+// Helper Functions
 static int b_search(cBitSet *cset, int t_offset);
-void bprint(int x);
+static void bprint(int x);
 
 cBitSet *cbitset_create(int *data, unsigned int sz) {
     cBitSet *new = malloc(sizeof(cBitSet));
@@ -173,6 +179,30 @@ void cbitset_print(cBitSet *cset) {
         }
     }
     printf("}\n");
+}
+
+int cbitset_issubset(cBitSet *x, cBitSet *y) { // x < y
+    if (x == NULL || y == NULL)
+        return 0;
+    
+    if (x->sz > y->sz)
+        return 0;
+    
+    int i;
+    for (i = 0; i < x->sz; i++) {
+        BitChunk *x_chunk = &(x->set[i]);
+        BitChunk *y_chunk = cbitset_getchunk(y, x_chunk->offset);
+        
+        if (y_chunk == NULL)
+            return 0;
+        
+        int j;
+        for (j = 0; j < __N; j++)
+            if (!CB_CHUNK_ISSUBSET(x_chunk, y_chunk))
+                return 0;
+    }
+    
+    return 1;
 }
 
 // --------- Helper ---------
